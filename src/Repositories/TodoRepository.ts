@@ -7,8 +7,8 @@ import BaseRepository from "./BaseRepositoy";
 
 class TodoRepository extends BaseRepository {
 
-    constructor(req: Request) {
-        super(req);
+    constructor(req: Request, res: Response) {
+        super(req, res);
     }
 
     getAll = async () => {
@@ -83,11 +83,11 @@ class TodoRepository extends BaseRepository {
 
     update = async () => {
         try {
-            const { id } = this.params;
-            const { description } = this.body;
+            const data = await this.getById();
 
+            const { description } = this.body;
             const todo = await db.todo.update({ description }, {
-                where: { id, user_id: this.credentials.id }
+                where: { id: data.id, user_id: this.credentials.id }
             })
 
             return todo;
@@ -98,11 +98,12 @@ class TodoRepository extends BaseRepository {
 
     delete = async () => {
         try {
-            const { id } = this.params;
-            const todo = await db.todo.destroy({
-                where: { id, user_id: this.credentials.id }
+            const data = await this.getById();
+
+            await db.todo.destroy({
+                where: { id: data.id, user_id: this.credentials.id }
             })
-            return todo;
+            return data;
         } catch (error) {
             throw error
         }

@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       username: DataTypes.STRING,
       password: DataTypes.STRING,
+      refresh_token: DataTypes.TEXT,
     },
     {
       defaultScope: {

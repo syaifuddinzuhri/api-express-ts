@@ -1,24 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import ApiResponses from "../utils/ApiResponses";
+const db = require("../database/models")
 
 export const auth = (req: Request, res: Response, next: NextFunction): any => {
-    if (!req.headers.authorization) {
-        return res.status(401).send("Unauthorization")
-    }
-
-    let secretKey = process.env.JWT_SECRET_KEY || "secret";
-    const token: string = req.headers.authorization.split(" ")[1];
-
     try {
-        const credentials: string | object = jwt.verify(token, secretKey);
+        const authHeaders = req.headers.authorization;
+        const token = authHeaders && authHeaders.split(" ")[1];
 
-        if (credentials) {
-            req.app.locals.credentials = credentials
-            return next();
+        if (token == null) {
+            return ApiResponses.error(res, 'Unauthorized', 401)
         }
 
-        return res.send('Token invalid');
+        let secretKey = process.env.JWT_SECRET_KEY || "secret";
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) throw (err.message)
+            req.app.locals.credentials = decoded
+            const refresh_token = req.cookies.refreshToken;
+            if (!refresh_token) throw ('Token invalid')
+            
+            return next();
+        });
+
     } catch (error) {
-        return res.send(error);
+        return ApiResponses.error(res, error, 401)
     }
 }

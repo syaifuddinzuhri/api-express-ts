@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
+import ApiResponses from "../utils/ApiResponses";
 
 const registerValidator = [
     check('username').isString(),
@@ -7,7 +8,7 @@ const registerValidator = [
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).send({ errors: errors.array() })
+            return ApiResponses.error(res, errors.array(), 422)
         }
         return next();
     }

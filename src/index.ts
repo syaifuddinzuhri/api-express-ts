@@ -8,6 +8,7 @@ import UserRoute from "./routes/UserRoute";
 import AuthRoute from "./routes/AuthRoute";
 import { config as dotenv } from "dotenv"
 import TodoRoute from "./routes/TodoRoute";
+import cookieParser from "cookie-parser";
 
 class App {
     public app: Application;
@@ -25,6 +26,7 @@ class App {
         this.app.use(compression())
         this.app.use(helmet())
         this.app.use(cors())
+        this.app.use(cookieParser())
     }
 
     protected routes(): void {
@@ -32,7 +34,7 @@ class App {
             res.send("Welcome to API Express using Typescript")
         })
 
-        this.app.use("/api/v1/users", UserRoute)
+        // this.app.use("/api/v1/users", UserRoute)
         this.app.use("/api/v1/auth", AuthRoute)
         this.app.use("/api/v1/todos", TodoRoute)
     }
@@ -41,5 +43,5 @@ class App {
 const port: number = 8000;
 const app = new App().app;
 app.listen(port, () => {
-    console.log('Aplikasi ini berjalan di port ' + port)
+    console.log('This application is running at ' + port)
 })
