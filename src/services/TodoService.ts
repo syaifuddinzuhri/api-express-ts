@@ -7,6 +7,7 @@ class TodoService {
     credentials: {
         id: number
     };
+    url: string;
     body: Request['body'];
     params: Request['params'];
     query: Request['query'];
@@ -16,6 +17,7 @@ class TodoService {
         this.body = req.body;
         this.params = req.params;
         this.query = req.query;
+        this.url = req.protocol + '://' + req.get('host') + req.originalUrl;
     }
 
     getAll = async () => {
