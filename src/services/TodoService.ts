@@ -1,7 +1,7 @@
 const db = require("../database/models")
 import { Request, Response } from "express"
 import { Sequelize } from "../database/models";
-import Pagination from "../utils/Pagination";
+import paginate from "../utils/Pagination";
 import { queryParseInt } from "../utils/QueryParse";
 
 class TodoService {
@@ -48,7 +48,7 @@ class TodoService {
             ]
         })
 
-        const result = Pagination.paginate({
+        const result = paginate({
             data: rows,
             count,
             page,
