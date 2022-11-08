@@ -1,7 +1,8 @@
 const db = require("../database/models")
 import { Request, Response } from "express"
 import { Sequelize } from "../database/models";
-import { getPage, getPerPage, pagination } from "../utils/Pagination";
+import Pagination from "../utils/Pagination";
+import { queryParseInt } from "../utils/QueryParse";
 
 class TodoService {
     credentials: {
@@ -26,8 +27,8 @@ class TodoService {
         };
         const whereUserRelation: any = {};
         const { description, username } = this.query;
-        const page = getPage(this.query.page)
-        const per_page = getPerPage(this.query.per_page)
+        const page = queryParseInt(this.query.page) ?? 1
+        const per_page = queryParseInt(this.query.per_page) ?? 10
 
         if (description) where.description = { [Sequelize.Op.like]: `%${description}%` }
         if (username) whereUserRelation.username = { [Sequelize.Op.like]: `%${username}%` }
@@ -47,7 +48,7 @@ class TodoService {
             ]
         })
 
-        const result = pagination({
+        const result = Pagination.paginate({
             data: rows,
             count,
             page,
