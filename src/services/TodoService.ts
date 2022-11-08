@@ -1,6 +1,6 @@
 const db = require("../database/models")
 import { Request, Response } from "express"
-import todo from "../database/models/todo";
+import { getPage, getPerPage, pagination } from "../utils/Pagination";
 
 class TodoService {
     credentials: {
@@ -8,21 +8,39 @@ class TodoService {
     };
     body: Request['body'];
     params: Request['params'];
+    query: Request['query'];
 
     constructor(req: Request) {
         this.credentials = req.app.locals.credentials;
         this.body = req.body;
         this.params = req.params;
+        this.query = req.query;
     }
 
     getAll = async () => {
-        const todos = await db.todo.findAll({
+        const page = getPage(this.query.page)
+        const per_page = getPerPage(this.query.per_page)
+
+        const { count, rows } = await db.todo.findAndCountAll({
             where: {
                 user_id: this.credentials.id
             },
-            attributes: ['id', 'description']
+            offset: (page - 1) * page,
+            limit: per_page,
+            distinct: true,
+            attributes: ['id', 'description'],
+            include: [
+                { model: db.user, attributes: ['id', 'username'] }
+            ]
         })
-        return todos;
+
+        const result = pagination({
+            data: rows,
+            count,
+            page,
+            per_page
+        })
+        return result;
     }
 
     store = async () => {
