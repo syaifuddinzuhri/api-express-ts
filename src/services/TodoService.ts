@@ -1,5 +1,6 @@
 const db = require("../database/models")
 import { Request, Response } from "express"
+import { Sequelize } from "../database/models";
 import { getPage, getPerPage, pagination } from "../utils/Pagination";
 
 class TodoService {
@@ -18,19 +19,29 @@ class TodoService {
     }
 
     getAll = async () => {
+        const where: any = {
+            user_id: this.credentials.id
+        };
+        const whereUserRelation: any = {};
+        const { description, username } = this.query;
         const page = getPage(this.query.page)
         const per_page = getPerPage(this.query.per_page)
 
+        if (description) where.description = { [Sequelize.Op.like]: `%${description}%` }
+        if (username) whereUserRelation.username = { [Sequelize.Op.like]: `%${username}%` }
+
         const { count, rows } = await db.todo.findAndCountAll({
-            where: {
-                user_id: this.credentials.id
-            },
+            where,
             offset: (page - 1) * page,
             limit: per_page,
             distinct: true,
             attributes: ['id', 'description'],
             include: [
-                { model: db.user, attributes: ['id', 'username'] }
+                {
+                    model: db.user,
+                    attributes: ['id', 'username'],
+                    where: whereUserRelation
+                }
             ]
         })
 
