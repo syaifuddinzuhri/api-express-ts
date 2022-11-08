@@ -1,49 +1,38 @@
 import { Request, Response } from "express"
+import AuthRepository from "../Repositories/AuthRepository";
+import ApiResponses from "../utils/ApiResponses";
 import Authentication from "../utils/Authentication";
 const db = require("../database/models")
 
 class AuthController {
     login = async (req: Request, res: Response): Promise<Response> => {
         try {
-            let { username, password } = req.body;
-
-            // Find User
-            const user = await db.user.findOne({ where: { username } });
-
-            // Password Check
-            if (user) {
-                let compare = await Authentication.passwordCompare(password, user.password);
-
-                if (compare) {
-                    // Token Generate
-                    let token = Authentication.generateToken(user.id, user.username, user.password)
-                    return res.send({
-                        token
-                    })
-                } else {
-                    return res.send('Password invalid')
-                }
-            }
-
-            return res.send('Username invalid or not found')
+            const repository = new AuthRepository(req);
+            const data = await repository.login();
+            return ApiResponses.success(res, 'Login successfully', data);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
 
     register = async (req: Request, res: Response): Promise<Response> => {
         try {
-            let { username, password } = req.body;
-            const hashedPassword: string = await Authentication.passwordHash(password);
-            const createUser = await db.user.create({ username, password: hashedPassword })
-            return res.send('Register successfully!')
+            const repository = new AuthRepository(req);
+            const data = await repository.register();
+            return ApiResponses.success(res, 'Register successfully', data);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
 
-    profile = (req: Request, res: Response): Response => {
-        return res.send(req.app.locals.credentials);
+    profile = async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const repository = new AuthRepository(req);
+            const data = await repository.profile();
+            return ApiResponses.success(res, 'Data has been obtained', data)
+        } catch (error) {
+            return ApiResponses.error(res, error, 500)
+        }
     }
 
 }

@@ -1,67 +1,51 @@
 import { Request, Response } from "express"
 import IController from "./interfaces/IController"
-import TodoService from "../services/TodoService"
-
+import ApiResponses from "../utils/ApiResponses";
+import TodoRepository from "../Repositories/TodoRepository";
 class TodoController implements IController {
     index = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const service: TodoService = new TodoService(req);
-            const todos = await service.getAll()
-            return res.send({
-                message: 'Success',
-                data: todos
-            })
+            const repository: TodoRepository = new TodoRepository(req);
+            const todos = await repository.getAll()
+            return ApiResponses.success(res, 'Data has been obtained', todos);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
     create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const service: TodoService = new TodoService(req);
-            const todo = await service.store()
-            return res.send({
-                message: 'Success',
-                data: todo
-            })
+            const repository: TodoRepository = new TodoRepository(req);
+            const todo = await repository.store()
+            return ApiResponses.success(res, 'Data added successfully', todo, 201);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
     show = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const service: TodoService = new TodoService(req);
-            const todo = await service.getById()
-            return res.send({
-                message: 'Success',
-                data: todo
-            })
+            const repository: TodoRepository = new TodoRepository(req);
+            const todo = await repository.getById()
+            return ApiResponses.success(res, 'Data has been obtainer', todo);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
     update = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const service: TodoService = new TodoService(req);
-            const todo = await service.update()
-
-            return res.send({
-                message: 'Success',
-                data: todo
-            })
+            const repository: TodoRepository = new TodoRepository(req);
+            const todo = await repository.update()
+            return ApiResponses.success(res, 'Data updated successfully', todo);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
     delete = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const service: TodoService = new TodoService(req);
-            const todo = await service.delete()
-            return res.send({
-                message: 'Success',
-                data: null
-            })
+            const repository: TodoRepository = new TodoRepository(req);
+            const todo = await repository.delete()
+            return ApiResponses.success(res, 'Data deleted successfully', todo);
         } catch (error) {
-            return res.send(error)
+            return ApiResponses.error(res, error, 500)
         }
     }
 
