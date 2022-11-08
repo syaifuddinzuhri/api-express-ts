@@ -1,21 +1,12 @@
 import { Request, Response } from "express"
 import IController from "./interfaces/IController"
-const db = require("../database/models")
-
-let data: any[] = []
+import TodoService from "../services/TodoService"
 
 class TodoController implements IController {
-
     index = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id } = req.app.locals.credentials;
-
-            const todos = await db.todo.findAll({
-                where: {
-                    user_id: id
-                },
-                attributes: ['id', 'description']
-            })
+            const service: TodoService = new TodoService(req);
+            const todos = await service.getAll()
             return res.send({
                 message: 'Success',
                 data: todos
@@ -26,13 +17,8 @@ class TodoController implements IController {
     }
     create = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id } = req.app.locals.credentials;
-            const { description } = req.body;
-
-            const todo = await db.todo.create({
-                user_id: id,
-                description
-            })
+            const service: TodoService = new TodoService(req);
+            const todo = await service.store()
             return res.send({
                 message: 'Success',
                 data: todo
@@ -43,16 +29,11 @@ class TodoController implements IController {
     }
     show = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id: user_id } = req.app.locals.credentials;
-            const { id } = req.params;
-
-            const todos = await db.todo.findOne({
-                where: { id, user_id },
-                attributes: ['id', 'description']
-            })
+            const service: TodoService = new TodoService(req);
+            const todo = await service.getById()
             return res.send({
                 message: 'Success',
-                data: todos
+                data: todo
             })
         } catch (error) {
             return res.send(error)
@@ -60,22 +41,12 @@ class TodoController implements IController {
     }
     update = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id: user_id } = req.app.locals.credentials;
-            const { id } = req.params;
-            const { description } = req.body;
-
-            await db.todo.update({ description }, {
-                where: { id, user_id }
-            })
-
-            const newTodo = await db.todo.findOne({
-                where: { id, user_id },
-                attributes: ['id', 'description']
-            })
+            const service: TodoService = new TodoService(req);
+            const todo = await service.update()
 
             return res.send({
                 message: 'Success',
-                data: newTodo
+                data: todo
             })
         } catch (error) {
             return res.send(error)
@@ -83,12 +54,8 @@ class TodoController implements IController {
     }
     delete = async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { id: user_id } = req.app.locals.credentials;
-            const { id } = req.params;
-            await db.todo.destroy({
-                where: { id, user_id }
-            })
-
+            const service: TodoService = new TodoService(req);
+            const todo = await service.delete()
             return res.send({
                 message: 'Success',
                 data: null
