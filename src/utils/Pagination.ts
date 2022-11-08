@@ -6,7 +6,7 @@ export const pagination = (data: any) => {
     const next_page = current_page == total_page ? null : current_page + 1;
 
     const result = {
-        data: data.data,
+        list: data.data,
         pagination: {
             total_records: data.count,
             total_perpage,
