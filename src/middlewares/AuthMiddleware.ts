@@ -14,10 +14,10 @@ export const auth = (req: Request, res: Response, next: NextFunction): any => {
 
         let secretKey = process.env.JWT_SECRET_KEY || "secret";
         jwt.verify(token, secretKey, (err, decoded) => {
-            if (err) throw (err.message)
+            if (err) throw ('Unauthorized')
             req.app.locals.credentials = decoded
             const refresh_token = req.cookies.refreshToken;
-            if (!refresh_token) throw ('Token invalid')
+            if (!refresh_token) throw ('Unauthorized')
             
             return next();
         });

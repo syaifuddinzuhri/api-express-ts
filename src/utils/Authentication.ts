@@ -16,14 +16,14 @@ class Authentication {
     public static generateAccessToken = (id: number, username: string, password: string): any => {
         const secretKey: string = process.env.JWT_SECRET_KEY || 'secret';
         const jwtTtl: number = process.env.JWT_TTL ? parseInt(process.env.JWT_TTL) : 60;
-        const token: string = jwt.sign({ id, username, password }, secretKey, { expiresIn: '20s' });
+        const token: string = jwt.sign({ id, username, password }, secretKey, { expiresIn: jwtTtl });
         return token;
     }
 
     public static generateRefreshToken = (id: number, username: string, password: string): any => {
         const secretKey: string = process.env.JWT_REFRESH_SECRET_KEY || 'secret';
-        const jwtTtl: number = process.env.JWT_TTL ? parseInt(process.env.JWT_TTL) : 60;
-        const token: string = jwt.sign({ id, username, password }, secretKey, { expiresIn: '60s' });
+        const jwtTtl: number = process.env.JWT_REFRESH_TTL ? parseInt(process.env.JWT_REFRESH_TTL) : 60;
+        const token: string = jwt.sign({ id, username, password }, secretKey, { expiresIn: jwtTtl });
         return token;
     }
 
@@ -31,7 +31,7 @@ class Authentication {
         try {
             const secretKey: string = process.env.JWT_REFRESH_SECRET_KEY || 'secret';
             jwt.verify(refresh_token, secretKey, (err, decoded) => {
-                if (err) throw (err.message)
+                if (err) throw ('Unauthorized!')
                 return true;
             });
             return true;
